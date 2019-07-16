@@ -142,22 +142,31 @@ class Autonomy():
 			
 			# Cropping a 30x30 pixel image around the robot while it follows a path
 			# cropped_region = grid_map_image.crop(((pixel_x + 40) - 30, (self.map_height - pixel_y - 180)-30, (pixel_x + 40) + 30, (self.map_height - pixel_y - 180) + 30))
+			
+			# Converting the updated map image from PIL image type to numpy array
 			grid_map_image_array = np.array(grid_map_image)
+
+			# Getting the shape of the map image array
 			img_rows = grid_map_image_array.shape[0]
 			img_cols = grid_map_image_array.shape[1]
-			# print("before while loop")
+
+			# Checking if the cropped region lies within the boundaries of the original image
 			while True:
 				center = (pixel_x, self.map_height-pixel_y)
 				width = height = 30
 				angle = self.current_heading
 				rect = (center, (width, height), angle)
-				# print(inside_rect(rect = rect, num_cols = img_cols, num_rows = img_rows))
 				if inside_rect(rect = rect, num_cols = img_cols, num_rows = img_rows):
 					break
-			# print('after while loop')
+
+			# Getting the bounding box points for the cropped region
 			box = cv2.boxPoints(rect).astype(np.int0)
+
+			# Representing the bounding box and the heading of robot by drawing a box with an arrow in it
 			# cv2.drawContours(grid_map_image_array, [box], 0, (0,0,0), 1)
 			# cv2.arrowedLine(grid_map_image_array, center, ((box[1][0]+box[2][0])//2, (box[1][1]+box[2][1])//2), (0,0,0), 1, tipLength = 0.1)
+			
+			# Getting the cropped image after rotation, using the function from auto_crop.py
 			cropped_image = crop_rotated_rectangle(image = grid_map_image_array, rect = rect)
 
 			# Segregating the images based on the presence of a door and saving them in separate folders
@@ -173,7 +182,7 @@ class Autonomy():
 				cv2.imwrite('/home/glaurung/catkin_ws/src/reddy_autonomy/Images/Bad_images/test{0}.png'.format(self.count), (cropped_image))
 			# If there is no door present then the cropped images are stored in the Good_images folder
 			cv2.imwrite('/home/glaurung/catkin_ws/src/reddy_autonomy/Images/Good_images/test{0}.png'.format(self.count), (cropped_image))		
-			# cropped_image = np.array(cropped_image)
+
 			# Visualizing the movement of the robot on the map using opencv and pillow library
 			grid_map_image = np.array(grid_map_image)
 			cv2.namedWindow('Image',cv2.WINDOW_NORMAL)
